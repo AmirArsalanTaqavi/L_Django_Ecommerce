@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content%}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">{{ product.name }}</h1>
+            <p class="lead fw-normal text-white-50 mb-0"></p>
+        </div>
+    </div>
+</header>
+<div class="container">
+    <br>
+    <div class="card mb-3">
+        <div class=" row g-0">
+            <div class="col-md-4">
+                <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    {% if product.is_sale %}
+                    <!-- Product price-->
+                    <strike> {{product.price}} </strike>
+                    &nbsp;{{product.sale_price}} {{product.currency}}
+                    {% else %}
+                    {{product.price}} {{product.currency}}
+                    {% endif %}
+
+                    <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+{% endblock %}
