@@ -27,6 +27,19 @@
                     {{product.price}} {{product.currency}}
                     {% endif %}
                     <br>
+                    <div class="row">
+                        <div class="col-md-2">Quantity:</div>
+                        <div class="col-md-2">
+                            <select class="form-select" aria-label="Default select example" id="qty-cart">
+                                <option selected>1</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
                     <button class="btn btn-primary" type="button" value="{{ product.id }}" id="add-cart">Add to
                         cart</button>
                     <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
@@ -46,11 +59,13 @@
             url: '{% url "cart_add" %}',
             data: {
                 product_id: $('#add-cart').val(),
+                product_qty: $('#qty-cart option:selected').text(),
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 action: 'post'
             },
             success: function (json) {
-                console.log(json)
+                // console.log(json)
+                document.getElementById('cart_quantity').textContent = json.qty
             },
 
             error: function (xhr, errmsg, err) {
