@@ -5,6 +5,10 @@ from .forms import SignUpForm
 from django.contrib import messages
 
 
+def category_summary(request):
+    return render(request, "category_summary.html", {})
+
+
 def category(request, category_title):
     # replace Hyphens with spaces
     category_title = category_title.replace("-", " ")

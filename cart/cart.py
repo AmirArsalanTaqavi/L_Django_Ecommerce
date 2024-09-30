@@ -28,6 +28,26 @@ class Cart:
 
         self.session.modified = True
 
+    def cart_total(self):
+        # Get product IDS
+        product_ids = self.cart.keys()
+        # lookup those keys in our products database model
+        products = Product.objects.filter(id__in=product_ids)
+        # Get quantities
+        quantities = self.cart
+
+        total = 0
+        for key, value in quantities.items():
+            # convert key string to int
+            key = int(key)
+            for product in products:
+                if product.id == key:
+                    if product.is_sale:
+                        total += product.sale_price * value
+                    else:
+                        total += product.price * value
+        return total
+
     def get_products(self):
         # get ids from cart
         prodoct_ids = self.cart.keys()
@@ -55,3 +75,11 @@ class Cart:
 
         updatedCart = self.cart
         return updatedCart
+
+    def delete(self, product):
+        product_id = str(product)
+        # delete from dictonary
+        if product_id in self.cart:
+            del self.cart[product_id]
+
+        self.session.modified = True

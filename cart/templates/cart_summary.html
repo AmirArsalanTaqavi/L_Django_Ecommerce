@@ -49,14 +49,19 @@
                                     <option value="5">5</option>
                                 </select>
                             </div>
+                            <!-- <div class="col-md-2">Sum:</div> -->
                         </div>
+                        <br>
                         <button type="button" data-index="{{ product.id }}"
                             class="btn btn-secondary update-cart">Update</button>
+                        <button type="button" data-index="{{ product.id }}"
+                            class="btn btn-danger delete-item">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
         {% endfor%}
+        <h3>Total: {{ totals }}</h3>
         {% else %}
         Nothing in your cart yet
         <br><br><br><br>
@@ -66,7 +71,7 @@
 
 
 <script>
-    // check if button is pressed
+    // Update cart
     $(document).on('click', '.update-cart', function (e) {
         e.preventDefault();
         // grab product id
@@ -77,6 +82,30 @@
             data: {
                 product_id: $(this).data('index'),
                 product_qty: $('#select' + productId + ' option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function (json) {
+                // console.log(json)
+                // document.getElementById('cart_quantity').textContent = json.qty
+                location.reload();
+            },
+
+            error: function (xhr, errmsg, err) {
+
+            }
+        })
+    })
+    // Delete Product from cart
+    $(document).on('click', '.delete-item', function (e) {
+        e.preventDefault();
+        // grab product id
+        var productId = $(this).data('index');
+        $.ajax({
+            type: 'POST',
+            url: '{% url "cart_delete" %}',
+            data: {
+                product_id: $(this).data('index'),
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 action: 'post'
             },
