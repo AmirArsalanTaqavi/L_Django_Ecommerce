@@ -22,15 +22,26 @@
 <body>
     <!-- Navigation-->
     {% include 'navbar.html' %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-info alert-dismissible fade show" style="position: fixed; top: 100px; right: 30px"
-        role="alert">
-        {{message}}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Toast alert -->
+    <!-- Toast alert -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="toast align-items-center text-white bg-warning border-0 show" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Message</strong>
+                <small class="text-muted">just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" autohide="true"
+                    aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
     </div>
-    {% endfor %}
-    {% endif %}
 
     {% block content %}
 

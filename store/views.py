@@ -1,12 +1,94 @@
 from django.shortcuts import render, redirect
-from .models import Product, ProductCategory
+from .models import Product, ProductCategory, Profile
 from django.contrib.auth import authenticate, login, logout
-from .forms import SignUpForm
+from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.db.models import Q
+
+
+def search(request):
+    if request.method == "POST":
+        searched = request.POST["searched"]
+        # Query The Products DB Model
+        searched = Product.objects.filter(
+            Q(name__icontains=searched) | Q(description__icontains=searched)
+        )
+        # test for null
+        if not searched:
+            messages.success(
+                request, "Could't find what you are looking for, Please try again"
+            )
+            return render(request, "search.html", {})
+        else:
+            return render(request, "search.html", {"searched": searched})
+    else:
+        return render(request, "search.html", {})
+
+
+def update_info(request):
+    if request.user.is_authenticated:
+        current_user = Profile.objects.get(id=request.user.id)
+        info_form = UserInfoForm(request.POST or None, instance=current_user)
+
+        if info_form.is_valid():
+            info_form.save()
+            messages.success(request, "Info Updated")
+            return redirect("home")
+
+        return render(request, "update_info.html", {"info_form": info_form})
+
+    else:
+        messages.success(request, "Login first to access to this page")
+        return redirect("login")
+
+
+def update_password(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+        if request.method == "POST":
+            user_password = ChangePasswordForm(current_user, request.POST)
+            if user_password.is_valid():
+                user_password.save()
+                messages.success(request, "Password Updated Successfully")
+                login(request, current_user)
+                return redirect("update_user")
+            else:
+                for error in list(user_password.errors.values()):
+                    messages.error(request, error)
+                    return redirect("update_password")
+        else:
+            user_password = ChangePasswordForm(current_user)
+            return render(
+                request, "update_password.html", {"user_password": user_password}
+            )
+
+    else:
+        messages.success(request, "Login first to access to this page")
+        return redirect("login")
+
+
+def update_user(request):
+    if request.user.is_authenticated:
+        current_user = User.objects.get(id=request.user.id)
+        user_form = UpdateUserForm(request.POST or None, instance=current_user)
+
+        if user_form.is_valid():
+            user_form.save()
+            login(request, current_user)
+            messages.success(request, "Profile Updated")
+            return redirect("home")
+
+        return render(request, "update_user.html", {"user_form": user_form})
+
+    else:
+        messages.success(request, "Login first to access to this page")
+        return redirect("login")
 
 
 def category_summary(request):
-    return render(request, "category_summary.html", {})
+    categories = ProductCategory.objects.all()
+    return render(request, "category_summary.html", {"categories": categories})
 
 
 def category(request, category_title):
@@ -65,8 +147,11 @@ def register_user(request):
             # log in user
             user = authenticate(username=username, password=password)
             login(request, user)
-            messages.success(request, "Registration Successful")
-            return redirect("home")
+            messages.success(
+                request,
+                "Account created, Please complete your info to finish registration",
+            )
+            return redirect("update_info")
         else:
             messages.success(request, "Registration Failed")
             return redirect("register")
