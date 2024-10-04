@@ -1,9 +1,12 @@
-from store.models import Product
+from store.models import Product,Profile cart
 
 
 class Cart:
     def __init__(self, request):
         self.session = request.session
+
+        # Get request
+        self.request = request
 
         # Get the current session key if it exist
         cart = self.session.get("session_key")
@@ -12,7 +15,7 @@ class Cart:
         if "session_key" not in request.session:
             cart = self.session["session_key"] = {}
 
-        # Make sure cart is avaliable on all plages of website
+        # Make sure cart is available on all plages of website
         self.cart = cart
 
     def add(self, product, quantity):
@@ -27,6 +30,13 @@ class Cart:
             self.cart[product_id] = int(product_qty)
 
         self.session.modified = True
+
+        # Deal with logged in user
+        if self.request.user.is_authenticated:
+            current_user = Profile.objects.filter(user__id=self.request.user.id)
+            # convert single quatation to double
+            carty = str(self.cart)
+            carty = cart.replace("\'","\"")
 
     def cart_total(self):
         # Get product IDS
@@ -50,10 +60,10 @@ class Cart:
 
     def get_products(self):
         # get ids from cart
-        prodoct_ids = self.cart.keys()
+        product_ids = self.cart.keys()
         # use ids to lookup products in database model
-        products = Product.objects.filter(id__in=prodoct_ids)
-        # retuen the products in database model
+        products = Product.objects.filter(id__in=product_ids)
+        # return the products in database model
         return products
 
     def __len__(self):
