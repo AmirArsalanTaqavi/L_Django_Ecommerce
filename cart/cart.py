@@ -1,4 +1,4 @@
-from store.models import Product,Profile cart
+from store.models import Product, Profile, cart
 
 
 class Cart:
@@ -36,7 +36,7 @@ class Cart:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
             # convert single quatation to double
             carty = str(self.cart)
-            carty = cart.replace("\'","\"")
+            carty = cart.replace("'", '"')
 
     def cart_total(self):
         # Get product IDS
