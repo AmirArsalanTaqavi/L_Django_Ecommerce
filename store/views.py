@@ -5,6 +5,8 @@ from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Q
+import json
+from cart.cart import Cart
 
 
 def search(request):
@@ -121,6 +123,20 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+
+            # shopping cart pull
+            current_user = Profile.objects.get(user__id=request.user.id)
+            # get the saved cart in DB
+            saved_cart = current_user.old_cart
+            # convert DB string to dic
+            if saved_cart:
+                converted_cart = json.loads(saved_cart)
+                # add the loaded cart to session
+                cart = Cart(request)
+                # looping in cart to add them from DB
+                for key, value in converted_cart.items():
+                    cart.db_add(product=key, quantity=value)
+
             messages.success(request, "Login Successful")
             return redirect("home")
         else:
