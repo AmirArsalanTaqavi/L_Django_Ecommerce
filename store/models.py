@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 # Customer Profile
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    date_modified = models.DateTimeField(User, auto_now=True)
+    date_modified = models.DateTimeField(auto_now=True)
     phone = models.CharField(max_length=15, blank=True)
     address1 = models.CharField(max_length=200, blank=True)
     address2 = models.CharField(max_length=200, blank=True)
@@ -16,7 +16,7 @@ class Profile(models.Model):
     state = models.CharField(max_length=50, blank=True)
     zipcode = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=50, blank=True)
-    old_cart = models.CharField(max_length=200, blank=True)
+    old_cart = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
         return self.user.username
@@ -95,7 +95,7 @@ class Product(models.Model):
         blank=True,
         null=True,
     )
-    price = models.DecimalField(default=0, max_digits=10, decimal_places=1)
+    price = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     currency = models.CharField(
         max_length=3,
         choices=Currency.choices,
@@ -110,7 +110,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to="uploads/products/")
     # Add sales
     is_sale = models.BooleanField(default=False)
-    sale_price = models.DecimalField(default=0, max_digits=10, decimal_places=1)
+    sale_price = models.DecimalField(default=0, max_digits=10, decimal_places=2)
 
     def __str__(self):
         return self.name
@@ -123,7 +123,7 @@ class Order(models.Model):
     quantity = models.IntegerField(default=1)
     address = models.CharField(max_length=200, default="", blank=True, null=True)
     phone = models.CharField(max_length=50, default="", blank=True, null=True)
-    date = models.DateField(default=datetime.datetime.today)
+    date = models.DateField(default=datetime.date.today)
     status = models.BooleanField(default=False)
 
     def __str__(self):

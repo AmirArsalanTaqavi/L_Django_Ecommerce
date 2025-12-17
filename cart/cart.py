@@ -1,4 +1,5 @@
 from store.models import Product, Profile
+import json
 
 
 class Cart:
@@ -18,6 +19,15 @@ class Cart:
         # Make sure cart is available on all plages of website
         self.cart = cart
 
+        # If user is authenticated and session cart is empty, load from DB
+        if self.request.user.is_authenticated and not self.cart:
+            try:
+                profile = Profile.objects.get(user=self.request.user)
+                if profile.old_cart:
+                    self.cart = profile.old_cart
+            except Profile.DoesNotExist:
+                pass
+
     def db_add(self, product, quantity):
         product_id = str(product)
         product_qty = str(quantity)
@@ -32,11 +42,8 @@ class Cart:
         # Deal with logged in user
         if self.request.user.is_authenticated:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
-            # convert single quotation to double
-            carty = str(self.cart)
-            carty = carty.replace("'", '"')
             # Save carty to the profile model
-            current_user.update(old_cart=str(carty))
+            current_user.update(old_cart=json.dumps(self.cart))
 
     def add(self, product, quantity):
         product_id = str(product.id)
@@ -54,11 +61,8 @@ class Cart:
         # Deal with logged in user
         if self.request.user.is_authenticated:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
-            # convert single quotation to double
-            carty = str(self.cart)
-            carty = carty.replace("'", '"')
             # Save carty to the profile model
-            current_user.update(old_cart=str(carty))
+            current_user.update(old_cart=json.dumps(self.cart))
 
     def cart_total(self):
         # Get product IDS
@@ -108,11 +112,8 @@ class Cart:
         # Deal with logged in user
         if self.request.user.is_authenticated:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
-            # convert single quotation to double
-            carty = str(self.cart)
-            carty = carty.replace("'", '"')
             # Save carty to the profile model
-            current_user.update(old_cart=str(carty))
+            current_user.update(old_cart=json.dumps(self.cart))
 
         updatedCart = self.cart
         return updatedCart
@@ -127,8 +128,5 @@ class Cart:
         # Deal with logged in user
         if self.request.user.is_authenticated:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
-            # convert single quotation to double
-            carty = str(self.cart)
-            carty = carty.replace("'", '"')
             # Save carty to the profile model
-            current_user.update(old_cart=str(carty))
+            current_user.update(old_cart=json.dumps(self.cart))

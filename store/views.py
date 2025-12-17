@@ -30,7 +30,7 @@ def search(request):
 
 def update_info(request):
     if request.user.is_authenticated:
-        current_user = Profile.objects.get(id=request.user.id)
+        current_user = Profile.objects.get(user=request.user)
         info_form = UserInfoForm(request.POST or None, instance=current_user)
 
         if info_form.is_valid():
